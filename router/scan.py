@@ -29,15 +29,12 @@ async def scan_image(file: UploadFile, task: str | None = None, complexity: int 
     # check if the file type is image
     if file.content_type.split('/')[0] != 'image':
         raise HTTPException(status_code=415, detail='unsupported file type')
-    print(complexity)
-    if not yolo.is_model_complexity_supported(complexity):
-        raise HTTPException(status_code=400, detail='unsupported complexity: must be 0-4, 0 being nano, and 4 xl')
-    
+
     if not yolo.is_task_supported(type=task):
         raise HTTPException(status_code=400, detail=f'you fucking loser I can\'t do this: must be ${yolo.MODEL_TYPES.join(", ")}')
 
     image = Image.open(file.file)
-    model = await yolo.get_yolo_instance(type=task, complexity=complexity)
+    model = await yolo.get_yolo_instance(type=task)
 
     # the model can take multiple images at the same time, so the 
     # output is a list of predictions, to get the single out put, getting the first of array

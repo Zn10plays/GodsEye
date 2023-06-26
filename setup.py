@@ -2,6 +2,8 @@ import subprocess
 import os
 import asyncio
 
+DOWNLOAD_LOCATION = os.path.abspath('./models')
+
 def runcmd(cmd, verbose = False, *args, **kwargs):
 
     process = subprocess.Popen(
@@ -18,14 +20,11 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
 
 async def download_models():
     MODEL_URLS = [
-        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt',
-        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8s.pt',
-        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m.pt',
-        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8l.pt',
-        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x.pt'
+        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x.pt',
+        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x-seg.pt',
+        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x-cls.pt',
+        'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x-pose-p6.pt'
     ]
-
-    DOWNLOAD_LOCATION = os.path.abspath('./models')
 
     for i in range(len(MODEL_URLS)):
         runcmd(f'python -m wget -o {DOWNLOAD_LOCATION}/{MODEL_URLS[i].split("/")[-1]} {MODEL_URLS[i]}', verbose=True)
