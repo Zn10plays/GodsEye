@@ -6,22 +6,16 @@ from typing import List
 
 from services import yolo
 
-class ObjectData(BaseModel):
-    name: str
-    position: List[float]
+class ClassificationResults(BaseModel):
+    class_name: str
     confidence: float
 
 router = APIRouter(
-    prefix='/scan',
+    prefix='/classify',
 )
 
 @router.post('/')
-async def scan_image(file: UploadFile, task: str | None = None, complexity: int | None = None) -> List[ObjectData]:
-
-    if not task:
-        task = 'detection'
-    if not complexity:
-        complexity = 0
+async def classify_image(file: UploadFile) -> List[ClassificationResults]:
 
     if not file:
         raise HTTPException(status_code=400, detail='missing parameters')
@@ -30,11 +24,8 @@ async def scan_image(file: UploadFile, task: str | None = None, complexity: int 
     if file.content_type.split('/')[0] != 'image':
         raise HTTPException(status_code=415, detail='unsupported file type')
 
-    if not yolo.is_task_supported(type=task):
-        raise HTTPException(status_code=400, detail=f'you fucking loser I can\'t do this: must be ${yolo.MODEL_TYPES.join(", ")}')
-
     image = Image.open(file.file)
-    model = await yolo.get_yolo_instance(type=task)
+    model = await yolo.get_yolo_instance('classification')
 
     # the model can take multiple images at the same time, so the 
     # output is a list of predictions, to get the single out put, getting the first of array
@@ -45,16 +36,14 @@ async def scan_image(file: UploadFile, task: str | None = None, complexity: int 
 
     # mappings of the class names to inter values
     names = result.names
-    items: list = result.boxes.data.tolist()
+    all_probabilities, top_5_probs = result.probs.data.tolist(), result.probs.top5
 
-    cleaned_data = list(map(lambda elm: map_names(elm, names), items))
+    cleaned_data = list(map(lambda elm: clean_data(elm, all_probabilities, names), top_5_probs))
 
     return JSONResponse(content=cleaned_data)
 
-def map_names(elm, names) -> ObjectData:
-    organized_data = {
-        'name': names[elm[5]],
-        'position': elm[:4],
-        'confidence': elm[4]
+def clean_data(result, all_results, class_names) -> ClassificationResults:
+    return {
+        'class_name': class_names[result],
+        'confidence': all_results[result]
     }
-    return organized_data
