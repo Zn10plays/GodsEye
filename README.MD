@@ -5,9 +5,9 @@ for dev
 # use the --reload flag
 
 ## docs
-the docs are automatically maid on /docs path following the OpenAPI standard
+the docs are automatically made on /docs path following the OpenAPI standard
 also checkout /redocs
 
 ## train
 do what you like, but there are folders in /train to put your images
-additionally there are .yaml for both of them respecting with the default classes locked in
+additionally there are .yaml for both segmentation and classificationof them respecting with the default classes locked in
